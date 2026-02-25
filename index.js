@@ -130,6 +130,10 @@ const httpServer = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && req.url === '/sse') {
+    // Prevent Railway/nginx from buffering the SSE stream
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
     const transport = new SSEServerTransport('/message', res);
     transports[transport.sessionId] = transport;
     res.on('close', () => { delete transports[transport.sessionId]; });
